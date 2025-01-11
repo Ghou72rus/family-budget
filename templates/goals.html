@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Цели накопления</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+</head>
+<body>
+     <nav class="navbar">
+        <div class="navbar-brand">Учет бюджета</div>
+        <ul class="navbar-nav">
+             <li><a href="{{ url_for('index') }}">Главная</a></li>
+            <li><a href="#">Инвестиционный портфель</a></li>
+             <li><a href="{{ url_for('goals') }}">Цели накопления</a></li>
+            <li><a href="{{ url_for('family') }}">Моя семья</a></li>
+        </ul>
+    </nav>
+    <div class="container">
+        <div class="goals-container">
+             <h2 class="goals-form">Добавить новую цель</h2>
+                <form method="post" class="goals-form">
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    {{ form.name.label }}<br>
+                    {{ form.name(class="input-field") }}<br>
+                    {% for error in form.name.errors %}
+                        <span class="error-message">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                    {{ form.target_amount.label }}<br>
+                    {{ form.target_amount(class="input-field") }}<br>
+                     {% for error in form.target_amount.errors %}
+                        <span class="error-message">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                 <button type="submit" class="add-button">Добавить</button>
+              </form>
+            <div class="goals-list">
+                {% for goal in goals %}
+
+                   <div class="goal-item">
+                       <form method="post" action="{{ url_for('delete_goal', goal_id=goal.id) }}">
+                                 <button type="submit" class="delete-button-goal">X</button>
+                       </form>
+                       <h3>{{ goal.name }}</h3>
+                     <div id="goal-chart-{{ goal.id }}"></div>
+                       <p>Необходимо: {{ goal.target_amount }} ₽</p>
+                       <p>Собрано: {{ goal.current_amount }} ₽</p>
+
+                        <form method="post" action="{{ url_for('add_to_goal', goal_id=goal.id) }}" class="add-remove-form">
+                           <input type="number" name="amount" class="input-field" placeholder="Сумма для добавления">
+                             <button type="submit" class="add-button">Добавить</button>
+                        </form>
+                        <form method="post" action="{{ url_for('remove_from_goal', goal_id=goal.id) }}" class="add-remove-form">
+                             <input type="number" name="amount" class="input-field" placeholder="Сумма для удаления">
+                            <button type="submit" class="delete-button">Удалить</button>
+                       </form>
+
+                   </div>
+
+                 <script>
+                 var graph_json = {{ graph_json_list[loop.index - 1]['graph_json']|safe }};
+                Plotly.newPlot('goal-chart-{{ graph_json_list[loop.index - 1]['id'] }}', graph_json);
+                  </script>
+                {% endfor %}
+            </div>
+         </div>
+    </div>
+</body>
+</html>

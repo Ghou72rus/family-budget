@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Моя семья</title>
+     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">Учет бюджета</div>
+        <ul class="navbar-nav">
+            <li><a href="{{ url_for('index') }}">Главная</a></li>
+            <li><a href="#">Инвестиционный портфель</a></li>
+             <li><a href="{{ url_for('goals') }}">Цели накопления</a></li>
+            <li><a href="{{ url_for('family') }}">Моя семья</a></li>
+        </ul>
+    </nav>
+     <div class="container">
+        <div class="family-container">
+            <h2>Добавить члена семьи</h2>
+                <form method="post">
+                    {{ form.hidden_tag() }}
+                    <div class="form-group">
+                       {{ form.name.label }}<br>
+                       {{ form.name(class="input-field") }}<br>
+                       {% for error in form.name.errors %}
+                           <span class="error-message">{{ error }}</span>
+                       {% endfor %}
+                    </div>
+                    <button type="submit" class="add-button">Добавить</button>
+                </form>
+           <div class="family-list">
+            <h2>Список членов семьи</h2>
+                <ul>
+                 {% for member in members %}
+                  <li class="family-item">
+                    <a href="{{ url_for('family_details', member_id=member.id) }}">
+                    {{ member.name }}
+                    </a>
+                     <form method="post" action="{{ url_for('delete_family_member', member_id=member.id) }}">
+                            <button type="submit" class="delete-button">Удалить</button>
+                      </form>
+                   </li>
+                   {% endfor %}
+               </ul>
+           </div>
+        </div>
+    </div>
+</body>
+</html>
