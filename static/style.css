@@ -8,21 +8,18 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-image: url(background.gif);
-    background-repeat: no-repeat;
-    background-size: cover;
 }
 
 .container {
     display: flex;
-    width: 80vw;
+    width: 90%;
+    max-width: 1200px;
     background-color: #292929;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     overflow: hidden;
     min-height: 600px;
-    margin-bottom: 50px;
-    opacity: 0.9;
+    margin-bottom: 50px
 }
 
 .left-panel,
@@ -133,7 +130,7 @@ label {
         width: 100%; /* Занимаем всю ширину экрана */
         margin: 0; /* Убираем внешние отступы */
         border-radius: 0; /* Убираем скругление углов */
-        min-height: auto;
+         min-height: auto;
     }
 
     .left-panel,
@@ -142,8 +139,7 @@ label {
         border: none; /* Убираем границы между панелями */
         padding: 10px; /* Меньшие отступы */
     }
-
-    .left-panel {
+      .left-panel {
          border-bottom: 1px solid #444; /* Добавляем нижнюю границу для панели ввода транзакций */
     }
 
@@ -153,5 +149,9 @@ label {
 
      #balance-chart {
         height: 250px; /* Меньшая высота графика для мобильных */
+    }
+
+     .report-panel {
+        margin-top: 20px
     }
 }

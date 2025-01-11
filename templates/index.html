@@ -38,6 +38,35 @@
                 </div>
                 <button type="submit" class="add-button">Добавить</button>
             </form>
+
+            <div class="report-panel">
+             <h2>Создать отчет</h2>
+                <form method="post" action="{{ url_for('generate_report') }}">
+                    {{ report_form.hidden_tag() }}
+                    <div class="form-group">
+                      {{ report_form.start_date.label }}<br>
+                       {{ report_form.start_date(class="input-field") }}<br>
+                       {% for error in report_form.start_date.errors %}
+                         <span class="error-message">{{ error }}</span>
+                       {% endfor %}
+                    </div>
+                    <div class="form-group">
+                     {{ report_form.end_date.label }}<br>
+                     {{ report_form.end_date(class="input-field") }}<br>
+                     {% for error in report_form.end_date.errors %}
+                         <span class="error-message">{{ error }}</span>
+                       {% endfor %}
+                    </div>
+                    <div class="form-group">
+                    {{ report_form.category.label }}<br>
+                    {{ report_form.category(class="input-field") }}<br>
+                    {% for error in report_form.category.errors %}
+                         <span class="error-message">{{ error }}</span>
+                       {% endfor %}
+                    </div>
+                   <button type="submit" class="add-button">Создать отчет</button>
+                </form>
+            </div>
         </div>
 
         <div class="center-panel">
@@ -60,7 +89,7 @@
                         <td>{{ 'Доход' if transaction.transaction_type == 'income' else 'Расход' }}</td>
                         <td>{{ transaction.amount }} ₽</td>
                         <td>{{ transaction.description }}</td>
-                        <td>
+                         <td>
                             <form method="post" action="{{ url_for('delete_transaction', transaction_id=transaction.id) }}">
                                 <button type="submit" class="delete-button">Удалить</button>
                             </form>
