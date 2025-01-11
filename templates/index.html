@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Учет бюджета</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+</head>
+<body>
+    <div class="container">
+        <div class="left-panel">
+            <h2>Добавить транзакцию</h2>
+            <form method="post">
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    {{ form.amount.label }}<br>
+                    {{ form.amount(class="input-field") }}<br>
+                    {% for error in form.amount.errors %}
+                        <span class="error-message">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                    {{ form.transaction_type.label }}<br>
+                    {{ form.transaction_type(class="input-field") }}<br>
+                     {% for error in form.transaction_type.errors %}
+                        <span class="error-message">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                    {{ form.description.label }}<br>
+                    {{ form.description(class="input-field") }}<br>
+                </div>
+                <div class="form-group">
+                    {{ form.date.label }}<br>
+                    {{ form.date(class="input-field") }}<br>
+                </div>
+                <button type="submit" class="add-button">Добавить</button>
+            </form>
+        </div>
+
+        <div class="center-panel">
+            <h2>Транзакции</h2>
+            <p>Баланс: {{ balance }} ₽</p>
+             <table class="transaction-table">
+                <thead>
+                <tr>
+                  <th>Дата</th>
+                  <th>Тип</th>
+                  <th>Сумма</th>
+                  <th>Описание</th>
+                  <th>Удалить</th>
+                </tr>
+                </thead>
+                <tbody>
+                 {% for transaction in transactions %}
+                    <tr>
+                        <td>{{ transaction.date }}</td>
+                        <td>{{ 'Доход' if transaction.transaction_type == 'income' else 'Расход' }}</td>
+                        <td>{{ transaction.amount }} ₽</td>
+                        <td>{{ transaction.description }}</td>
+                        <td>
+                            <form method="post" action="{{ url_for('delete_transaction', transaction_id=transaction.id) }}">
+                                <button type="submit" class="delete-button">Удалить</button>
+                            </form>
+                        </td>
+                    </tr>
+                 {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+         <div class="right-panel">
+            <h2>Динамика баланса</h2>
+                <div id="balance-chart"></div>
+             <script>
+             var graph_json = {{ graph_json|safe }};
+            Plotly.newPlot('balance-chart', graph_json);
+        </script>
+
+        </div>
+    </div>
+</body>
+</html>
