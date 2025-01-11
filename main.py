@@ -12,11 +12,12 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import Paragraph, SimpleDocTemplate
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Table, TableStyle
 from io import BytesIO
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib.enums import TA_CENTER
+from reportlab.lib import colors
 
 load_dotenv()
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -119,13 +120,6 @@ def create_pdf_report(transactions, start_date, end_date, category):
         name='CustomTitle',
         parent=styles['h1'],
         fontName='Arial',  # Используем шрифт Arial для заголовка
-        alignment=TA_CENTER,  # Выравнивание по центру
-        fontSize=24
-    )
-    title_style2 = ParagraphStyle(
-        name='CustomTitle',
-        parent=styles['h1'],
-        fontName='Arial',  # Используем шрифт Arial для заголовка
         alignment=TA_CENTER  # Выравнивание по центру
     )
 
@@ -137,22 +131,43 @@ def create_pdf_report(transactions, start_date, end_date, category):
     )
 
     story = []
-    title = Paragraph(f"Отчет по категории {category.upper()}", title_style)
-    title2 = Paragraph(f"за период {start_date} - {end_date}", title_style2)
+
+    title = Paragraph(f"Отчет по категории '{category}' за период {start_date} - {end_date}", title_style)
     story.append(title)
-    story.append(title2)
+
+    data = [["Дата", "Тип", "Сумма", "Описание"]]
     total_amount = 0
     for transaction in transactions:
+        amount = transaction.amount
         if transaction.transaction_type == 'expense':
+            amount = abs(amount)  # Модуль для расходов
             total_amount -= transaction.amount
+            amount_str = f"{amount}"
         else:
             total_amount += transaction.amount
+            amount_str = f"{amount}"
 
-        transaction_str = f"{transaction.date}: {('Доход' if transaction.transaction_type == 'income' else 'Расход')}, {transaction.amount} руб., {transaction.description}"
-        p = Paragraph(transaction_str, desc_style)
-        story.append(p)
+        data.append([
+            transaction.date,
+            'Доход' if transaction.transaction_type == 'income' else 'Расход',
+            amount_str,
+            transaction.description,
+        ])
 
-    total_str = f"Общая сумма: {total_amount} руб."
+    table = Table(data)
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Arial'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('LEFTPADDING', (0, 0), (-1, -1), 5),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 5),
+    ]))
+    story.append(table)
+
+    total_str = f"Общая сумма: {abs(total_amount)} руб."
     p = Paragraph(total_str, desc_style)
     story.append(p)
 

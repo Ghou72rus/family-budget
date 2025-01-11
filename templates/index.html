@@ -38,35 +38,6 @@
                 </div>
                 <button type="submit" class="add-button">Добавить</button>
             </form>
-
-            <div class="report-panel">
-             <h2>Создать отчет</h2>
-                <form method="post" action="{{ url_for('generate_report') }}">
-                    {{ report_form.hidden_tag() }}
-                    <div class="form-group">
-                      {{ report_form.start_date.label }}<br>
-                       {{ report_form.start_date(class="input-field") }}<br>
-                       {% for error in report_form.start_date.errors %}
-                         <span class="error-message">{{ error }}</span>
-                       {% endfor %}
-                    </div>
-                    <div class="form-group">
-                     {{ report_form.end_date.label }}<br>
-                     {{ report_form.end_date(class="input-field") }}<br>
-                     {% for error in report_form.end_date.errors %}
-                         <span class="error-message">{{ error }}</span>
-                       {% endfor %}
-                    </div>
-                    <div class="form-group">
-                    {{ report_form.category.label }}<br>
-                    {{ report_form.category(class="input-field") }}<br>
-                    {% for error in report_form.category.errors %}
-                         <span class="error-message">{{ error }}</span>
-                       {% endfor %}
-                    </div>
-                   <button type="submit" class="add-button">Создать отчет</button>
-                </form>
-            </div>
         </div>
 
         <div class="center-panel">
@@ -108,6 +79,34 @@
             Plotly.newPlot('balance-chart', graph_json);
         </script>
 
+        </div>
+         <div class="report-panel">
+                <h2>Создать отчет</h2>
+                  <form method="post" action="{{ url_for('generate_report') }}">
+                       {{ report_form.hidden_tag() }}
+                       <div class="form-group">
+                           {{ report_form.start_date.label }}<br>
+                           {{ report_form.start_date(class="input-field") }}<br>
+                           {% for error in report_form.start_date.errors %}
+                               <span class="error-message">{{ error }}</span>
+                           {% endfor %}
+                       </div>
+                       <div class="form-group">
+                          {{ report_form.end_date.label }}<br>
+                          {{ report_form.end_date(class="input-field") }}<br>
+                            {% for error in report_form.end_date.errors %}
+                               <span class="error-message">{{ error }}</span>
+                            {% endfor %}
+                      </div>
+                     <div class="form-group">
+                        {{ report_form.category.label }}<br>
+                         {{ report_form.category(class="input-field") }}<br>
+                           {% for error in report_form.category.errors %}
+                              <span class="error-message">{{ error }}</span>
+                            {% endfor %}
+                      </div>
+                       <button type="submit" class="add-button">Создать отчет</button>
+                    </form>
         </div>
     </div>
 </body>

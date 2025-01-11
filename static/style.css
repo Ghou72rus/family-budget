@@ -13,7 +13,6 @@ body {
 .container {
     display: flex;
     width: 90%;
-    max-width: 1200px;
     background-color: #292929;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -24,7 +23,8 @@ body {
 
 .left-panel,
 .center-panel,
-.right-panel {
+.right-panel,
+.report-panel {
     padding: 20px;
     flex: 1;
 }
@@ -135,7 +135,8 @@ label {
 
     .left-panel,
     .center-panel,
-    .right-panel {
+    .right-panel,
+    .report-panel {
         border: none; /* Убираем границы между панелями */
         padding: 10px; /* Меньшие отступы */
     }
@@ -151,7 +152,4 @@ label {
         height: 250px; /* Меньшая высота графика для мобильных */
     }
 
-     .report-panel {
-        margin-top: 20px
-    }
 }
