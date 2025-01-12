@@ -57,7 +57,7 @@ body {
 
 .container {
     display: flex;
-    width: 98vw;
+    min-width: 98vw;
     background-color: #292929;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     overflow: hidden;
@@ -125,9 +125,9 @@ body {
 .center-panel,
 .right-panel,
 .report-panel {
-    padding: 20px;
+    padding: 5px;
     flex: 1;
-    min-width: 450px;
+    min-width: 400px;
     border: 1px solid #444;
 
 }
@@ -193,7 +193,7 @@ a {
     color: white;
     padding: 10px 15px;
     border: none;
-    min-width: 100px;
+    min-width: 80px;
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s ease;
@@ -229,7 +229,7 @@ a {
 .delete-button {
     background-color: #dc3545;
     color: white;
-    width: 100px;
+    min-width: 80px;
     padding: 10px 15px;
     border: none;
     border-radius: 4px;

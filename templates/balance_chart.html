@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Динамика баланса</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">Учет бюджета</div>
+        <ul class="navbar-nav">
+            <li><a href="{{ url_for('index') }}">Главная</a></li>
+            <li><a href="{{ url_for('balance_chart') }}">Динамика баланса</a></li>
+             <li><a href="{{ url_for('report') }}">Создать отчет</a></li>
+            <li><a href="{{ url_for('goals') }}">Цели накопления</a></li>
+            <li><a href="{{ url_for('portfolios') }}">Портфели</a></li>
+             <li><a href="{{ url_for('family') }}">Моя семья</a></li>
+        </ul>
+    </nav>
+    <div class="container">
+        <div class="chart-panel">
+        <h2>Динамика баланса</h2>
+             <div id="balance-chart"></div>
+              <script>
+                 var graph_json = {{ graph_json|safe }};
+                 Plotly.newPlot('balance-chart', graph_json);
+             </script>
+         </div>
+    </div>
+</body>
+</html>

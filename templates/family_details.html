@@ -3,45 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Транзакции {{ member.name }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Детали члена семьи</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-      <nav class="navbar">
+    <nav class="navbar">
         <div class="navbar-brand">Учет бюджета</div>
         <ul class="navbar-nav">
             <li><a href="{{ url_for('index') }}">Главная</a></li>
-            <li><a href="#">Инвестиционный портфель</a></li>
-             <li><a href="{{ url_for('goals') }}">Цели накопления</a></li>
-            <li><a href="{{ url_for('family') }}">Моя семья</a></li>
+            <li><a href="{{ url_for('balance_chart') }}">Динамика баланса</a></li>
+             <li><a href="{{ url_for('report') }}">Создать отчет</a></li>
+            <li><a href="{{ url_for('goals') }}">Цели накопления</a></li>
+            <li><a href="{{ url_for('portfolios') }}">Портфели</a></li>
+             <li><a href="{{ url_for('family') }}">Моя семья</a></li>
         </ul>
     </nav>
-    <div class="container">
+     <div class="container">
         <div class="family-details-container">
              <h2>Транзакции {{ member.name }}</h2>
-            <p>Баланс: {{ balance }} ₽</p>
-            <table class="transaction-table">
-              <thead>
-                <tr>
-                  <th>Дата</th>
-                  <th>Тип</th>
-                  <th>Сумма</th>
-                  <th>Описание</th>
-                </tr>
-               </thead>
-                <tbody>
-                 {% for transaction in transactions %}
-                    <tr>
-                        <td>{{ transaction.date }}</td>
-                        <td>{{ 'Доход' if transaction.transaction_type == 'income' else 'Расход' }}</td>
-                        <td>{{ transaction.amount }} ₽</td>
-                        <td>{{ transaction.description }}</td>
-                    </tr>
-                 {% endfor %}
-              </tbody>
-            </table>
-             <a href="{{ url_for('family') }}" class="back-button">Назад к членам семьи</a>
-        </div>
-    </div>
+            <div class="member-transactions">
+                 <p>Баланс: {{ balance }} ₽</p>
+                 <table class="transaction-table">
+                    <thead>
+                        <tr>
+                            <th>Дата</th>
+                            <th>Тип</th>
+                            <th>Сумма</th>
+                            <th>Описание</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in transactions %}
+                            <tr>
+                                <td>{{ transaction.date }}</td>
+                                <td>{{ 'Доход' if transaction.transaction_type == 'income' else 'Расход' }}</td>
+                                <td>{{ transaction.amount }} ₽</td>
+                                <td>{{ transaction.description }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                 </table>
+             </div>
+         </div>
+     </div>
 </body>
 </html>

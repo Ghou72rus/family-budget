@@ -38,8 +38,6 @@ with app.app_context():
 @app.route('/', methods=['GET', 'POST'])
 def index():
     form = TransactionForm()
-    report_form = ReportForm()
-    goal_form = GoalForm()
 
     if form.validate_on_submit():
         transaction = Transaction(
@@ -48,16 +46,69 @@ def index():
             description=form.description.data,
             date=form.date.data if form.date.data else datetime.date.today(),
             member_id=form.member_id.data.id if form.member_id.data else None,
-
         )
+
+        if form.member_id.data:
+            member = FamilyMember.query.get(form.member_id.data.id)
+            transaction.member_name = member.name
+        else:
+            transaction.member_name = "Общее"
+
         db.session.add(transaction)
         db.session.commit()
+
         return redirect(url_for('index'))
 
     transactions = Transaction.query.order_by(Transaction.date.desc()).all()
     balance = sum([t.amount if t.transaction_type == 'income' else -t.amount for t in transactions])
     members = FamilyMember.query.all()
-    # Подготовка данных для графика
+
+    for transaction in transactions:
+        if transaction.member_id:
+            transaction.member_name = FamilyMember.query.get(transaction.member_id).name
+        else:
+            transaction.member_name = "Общее"
+
+    return render_template('index.html', form=form, transactions=transactions, balance=balance, members=members)
+
+
+@app.route('/delete/<int:transaction_id>', methods=['POST'])
+def delete_transaction(transaction_id):
+    transaction = Transaction.query.get_or_404(transaction_id)
+    db.session.delete(transaction)
+    db.session.commit()
+    return redirect(url_for('index'))
+
+
+@app.route('/report', methods=['GET', 'POST'])
+def report():
+    report_form = ReportForm()
+    transactions = []
+    total_amount = 0;
+    if report_form.validate_on_submit():
+        start_date = report_form.start_date.data
+        end_date = report_form.end_date.data
+        category = report_form.category.data
+
+        transactions = Transaction.query.filter(
+            Transaction.description.contains(category),
+            Transaction.date >= start_date,
+            Transaction.date <= end_date
+        ).order_by(Transaction.date).all()
+
+        for transaction in transactions:
+            if transaction.transaction_type == 'expense':
+                total_amount -= transaction.amount
+            else:
+                total_amount += transaction.amount;
+
+    return render_template('report.html', report_form=report_form, transactions=transactions, total_amount=total_amount)
+
+
+@app.route('/balance_chart')
+def balance_chart():
+    transactions = Transaction.query.order_by(Transaction.date.desc()).all()
+
     dates = [t.date.strftime('%Y-%m-%d') for t in transactions]
     amounts = [t.amount if t.transaction_type == 'income' else -t.amount for t in transactions]
     balance_over_time = []
@@ -67,7 +118,6 @@ def index():
         current_balance += amount
         balance_over_time.append(current_balance)
 
-    # Создаем график
     fig = go.Figure(data=[go.Scatter(x=dates, y=balance_over_time, mode='lines+markers',
                                      marker=dict(size=8, color='#007bff'),
                                      line=dict(color='#007bff', width=2))])
@@ -81,109 +131,7 @@ def index():
         margin=dict(l=20, r=20, t=20, b=20)
     )
     graph_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-
-    return render_template('index.html', form=form, transactions=transactions, balance=balance, graph_json=graph_json,
-                           report_form=report_form, goal_form=goal_form, members=members)
-
-
-@app.route('/delete/<int:transaction_id>', methods=['POST'])
-def delete_transaction(transaction_id):
-    transaction = Transaction.query.get_or_404(transaction_id)
-    db.session.delete(transaction)
-    db.session.commit()
-    return redirect(url_for('index'))
-
-
-@app.route('/report', methods=['POST'])
-def generate_report():
-    report_form = ReportForm()
-    if report_form.validate_on_submit():
-        start_date = report_form.start_date.data
-        end_date = report_form.end_date.data
-        category = report_form.category.data
-
-        transactions = Transaction.query.filter(
-            Transaction.description.contains(category),
-            Transaction.date >= start_date,
-            Transaction.date <= end_date
-        ).order_by(Transaction.date).all()
-
-        if not transactions:
-            return render_template('no_report.html', report_form=report_form)
-
-        return create_pdf_report(transactions, start_date, end_date, category)
-    return redirect(url_for('index'))
-
-
-def create_pdf_report(transactions, start_date, end_date, category):
-    buffer = BytesIO()
-    pdfmetrics.registerFont(TTFont('Arial', 'arial.ttf'))
-    doc = SimpleDocTemplate(buffer, pagesize=letter)
-    styles = getSampleStyleSheet()
-
-    title_style = ParagraphStyle(
-        name='CustomTitle',
-        parent=styles['h1'],
-        fontName='Arial',
-        alignment=TA_CENTER
-    )
-
-    desc_style = ParagraphStyle(
-        name='CustomNormal',
-        parent=styles['Normal'],
-        fontName='Arial',
-        fontSize=10
-    )
-
-    story = []
-
-    title = Paragraph(f"Отчет по категории '{category}' за период {start_date} - {end_date}", title_style)
-    story.append(title)
-
-    data = [["Дата", "Тип", "Сумма", "Описание"]]
-    total_amount = 0
-    for transaction in transactions:
-        amount = transaction.amount
-        if transaction.transaction_type == 'expense':
-            amount = abs(amount)
-            total_amount -= transaction.amount
-            amount_str = f"<b>{amount}</b>"
-        else:
-            total_amount += transaction.amount
-            amount_str = f"{amount}"
-
-        data.append([
-            transaction.date,
-            'Доход' if transaction.transaction_type == 'income' else 'Расход',
-            amount_str,
-            transaction.description,
-        ])
-
-    table = Table(data)
-    table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, -1), 'Arial'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-        ('LEFTPADDING', (0, 0), (-1, -1), 5),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 5),
-    ]))
-    story.append(table)
-
-    total_str = f"<b>Общая сумма:</b> {total_amount} ₽"
-    p = Paragraph(total_str, desc_style)
-    story.append(p)
-
-    doc.build(story)
-
-    buffer.seek(0)
-    response = make_response(buffer.read())
-    response.headers['Content-Type'] = 'application/pdf'
-    response.headers['Content-Disposition'] = 'inline; filename=report.pdf'
-
-    return response
+    return render_template('balance_chart.html', graph_json=graph_json)
 
 
 @app.route('/goals', methods=['GET', 'POST'])
@@ -245,6 +193,11 @@ def delete_goal(goal_id):
     db.session.delete(goal)
     db.session.commit()
     return redirect(url_for('goals'))
+
+
+@app.route('/portfolios')
+def portfolios():
+    return render_template('portfolios.html')
 
 
 @app.route('/family', methods=['GET', 'POST'])

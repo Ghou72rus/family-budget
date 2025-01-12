@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создать отчет</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">Учет бюджета</div>
+        <ul class="navbar-nav">
+            <li><a href="{{ url_for('index') }}">Главная</a></li>
+            <li><a href="{{ url_for('balance_chart') }}">Динамика баланса</a></li>
+             <li><a href="{{ url_for('report') }}">Создать отчет</a></li>
+            <li><a href="{{ url_for('goals') }}">Цели накопления</a></li>
+            <li><a href="{{ url_for('portfolios') }}">Портфели</a></li>
+             <li><a href="{{ url_for('family') }}">Моя семья</a></li>
+        </ul>
+    </nav>
+    <div class="container">
+        <div class="report-container">
+            <div class="report-panel">
+                <h2>Создать отчет</h2>
+                    <form method="post" action="{{ url_for('report') }}">
+                        {{ report_form.hidden_tag() }}
+                        <div class="form-group">
+                            {{ report_form.start_date.label }}<br>
+                            {{ report_form.start_date(class="input-field") }}<br>
+                            {% for error in report_form.start_date.errors %}
+                                <span class="error-message">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="form-group">
+                            {{ report_form.end_date.label }}<br>
+                            {{ report_form.end_date(class="input-field") }}<br>
+                            {% for error in report_form.end_date.errors %}
+                                <span class="error-message">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="form-group">
+                            {{ report_form.category.label }}<br>
+                            {{ report_form.category(class="input-field") }}<br>
+                            {% for error in report_form.category.errors %}
+                                <span class="error-message">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        <button type="submit" class="add-button">Создать отчет</button>
+                    </form>
+                </div>
+                    {% if transactions %}
+                    <div class="report-table-container">
+                        <h2>Отчет</h2>
+                        <p>Общая сумма: {{ total_amount }} ₽</p>
+                            <table class="transaction-table">
+                                <thead>
+                                    <tr>
+                                        <th>Дата</th>
+                                        <th>Тип</th>
+                                        <th>Сумма</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for transaction in transactions %}
+                                        <tr>
+                                            <td>{{ transaction.date }}</td>
+                                            <td>{{ 'Доход' if transaction.transaction_type == 'income' else 'Расход' }}</td>
+                                            <td>{{ transaction.amount }} ₽</td>
+                                            <td>{{ transaction.description }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+             </div>
+     </div>
+</body>
+</html>
